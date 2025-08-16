@@ -1,0 +1,125 @@
+// Use DBML to define your database structure
+// Docs: https://dbml.dbdiagram.io/docs
+
+Table User {
+  ConsumerUserId Guid [primary key]
+  Email varchar(50) [not null]
+  Password varchar(255) [not null]
+  Name varchar(50) [not null]
+  RoleId int [not null]
+
+  ProducerUserId Guid
+}
+
+Table ProducerUser{
+  ProducerUserId Guid [primary key]
+  SecretKey varchar(255) [not null]
+  ProducerId Guid [not null]
+}
+
+Ref: User.ProducerUserId > ProducerUser.ProducerUserId
+
+Table Producer{
+  ProducerId Guid [primary key]
+  Title varchar(50) [not null]
+  Description  varchar(1000)
+  Rating decimal [not null]
+}
+
+Ref: Producer.ProducerId < ProducerUser.ProducerId
+
+Table Role{
+  RoleId int [primary key]
+  Title varchar(50) [not null]
+  Description varchar(255) [not null]
+}
+
+Ref: User.RoleId < Role.RoleId
+
+// Identity
+
+
+Table DreamCategory {
+  DreamCategoryId Guid [primary key]
+  Title varchar(100) [not null]
+  Description varchar(1000)
+}
+
+Table Dream {
+  DreamId Guid [primary key]
+  Title varchar(100) [not null]
+  Description varchar(1000)
+  ProducerUserId Guid [not null]
+  ProducerId Guid [not null]
+  Price decimal [not null]
+  ImageFileName varchar(255) [not null]
+}
+
+Table DreamCategoryDreamXRef{
+  DreamId Guid [primary key]
+  DreamCategoryId Guid [primary key]
+}
+Ref: Dream.ProducerUserId > ProducerUser.ProducerUserId
+
+// Dream
+
+Table File {
+  FileName varchar(255) [primary key]
+  Path varchar(255) [not null]
+  UpdateData datetime [not null]
+  File bytes [not null]
+}
+
+Ref: Dream.ImageFileName > File.FileName
+
+//File
+
+Table Order{
+  OrderId Guid [primary key]
+  CreatedAt datetime [ not null]
+  UserId Guid [not null]
+}
+
+Table OrderDreamXRef{
+  OrderId Guid [primary key]
+  DreamId Guid [primary key]
+  Count integer [not null]
+}
+
+Ref: Order.UserId > User.ConsumerUserId
+Ref: OrderDreamXRef.DreamId < Dream.DreamId
+Ref: OrderDreamXRef.OrderId < Order.OrderId
+
+
+Ref: DreamCategoryDreamXRef.DreamId < Dream.DreamId
+Ref: DreamCategoryDreamXRef.DreamCategoryId < DreamCategory.DreamCategoryId
+Ref: Producer.ProducerId < Dream.ProducerId
+//Order
+
+Table Payment{
+  PaymentId Guid [primary key]
+  OrderId Guid [not null]
+  PaymentDate datetime [not null]
+  Message varchar(1000)
+  ChequeFileName varchar(255) [not null]
+}
+
+Ref: Payment.ChequeFileName > File.FileName
+Ref: Payment.OrderId > Order.OrderId
+//Payment History
+
+Table Review {
+  ReviewId Guid [pk]
+  DreamId Guid [not null]
+  UserId Guid [not null]
+  Rating decimal [not null]
+  Comment varchar(1000)
+  CreatedAt datetime [not null]
+}
+
+
+Ref: Review.DreamId > Dream.DreamId
+Ref: Review.UserId > User.ConsumerUserId
+// Review
+
+
